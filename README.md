@@ -12,26 +12,47 @@ Reasoning-GRPO
 二、目录结构
 
 Reasoning-GRPO/
+
 ├── README.md
+
 ├── requirements.txt
+
 ├── setup.py
+
 ├── configs/
+
 │   ├── sft_config.yaml
+
 │   └── grpo_config.yaml
+
 ├── data/
+
 │   ├── prepare_sft.py
+
 │   └── dataset_loaders.py
+
 ├── verifier/
+
 │   ├── math_parser.py
+
 │   └── math_evaluator.py
+
 ├── sft/
+
 │   ├── lora.py
+
 │   └── train_sft.py
+
 ├── rl/
+
 │   ├── rollout_engine.py
+
 │   ├── grpo_trainer.py
+
 │   └── train_rl.py
+
 └── utils/
+
     └── logger.py
 
 三、环境依赖
