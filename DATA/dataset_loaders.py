@@ -52,6 +52,68 @@ class MathReasoningDataset(Dataset):
                 labels[:prompt_len] = [-100] * prompt_len
                 result["labels"] = labels
         return result
+"""
+（与Qwen聊天模板对齐的标签化数据实现）
+def __getitem__(self, index: int) -> Dict[str, Any]:
+    row = self.rows[index]
+    
+    # 1. 构造标准对话结构（Messages 格式）
+    messages = [
+        {"role": "user", "content": row["prompt"]},
+    ]
+    if self.mode == "sft":
+        messages.append({"role": "assistant", "content": row["response"]})
+
+    result = {
+        "prompt": row["prompt"], 
+        "source_id": row.get("source_id", str(index))
+    }
+    if self.mode == "sft":
+        result["response"] = row["response"]
+
+    if self.tokenizer is not None:
+        # 2. 单独获取 Prompt 的 Token 长度（用于后续切分 Loss 掩码）
+        # add_generation_prompt=True 会自动在末尾加上如 "<|im_start|>assistant\n" 的引导头
+        prompt_text = self.tokenizer.apply_chat_template(
+            [messages[0]], 
+            tokenize=False, 
+            add_generation_prompt=True
+        )
+        prompt_encoded = self.tokenizer(
+            prompt_text, 
+            truncation=True, 
+            max_length=self.max_length, 
+            add_special_tokens=False  # chat template 内部已包含特殊控制 Token
+        )
+        result["prompt_input_ids"] = prompt_encoded["input_ids"]
+        result["prompt_attention_mask"] = prompt_encoded["attention_mask"]
+
+        # 3. 获取完整对话（Prompt + Response）的 Token 编码
+        full_text = self.tokenizer.apply_chat_template(
+            messages, 
+            tokenize=False, 
+            add_generation_prompt=False
+        )
+        encoded = self.tokenizer(
+            full_text, 
+            truncation=True, 
+            max_length=self.max_length, 
+            add_special_tokens=False
+        )
+        
+        result["input_ids"] = encoded["input_ids"]
+        result["attention_mask"] = encoded["attention_mask"]
+
+        # 4. 构造 SFT 的 Labels（将 Prompt 部分设为 -100）
+        if self.mode == "sft":
+            labels = list(encoded["input_ids"])
+            # 利用 prompt 编码的实际长度作为截断和掩码分界线
+            prompt_len = min(len(prompt_encoded["input_ids"]), len(labels))
+            labels[:prompt_len] = [-100] * prompt_len
+            result["labels"] = labels
+
+    return result
+"""
 
 
 def _collate(tokenizer: Any | None):
