@@ -1,11 +1,9 @@
-"""Minimal LoRA injection for nn.Linear modules (no PEFT dependency)."""
 from __future__ import annotations
 import torch
 from torch import nn
 import torch.nn.functional as F
 
 class LoRALinear(nn.Module):
-    """Frozen linear base plus trainable low-rank A/B update."""
     def __init__(self, base: nn.Linear, rank: int = 8, alpha: float = 16.0, dropout: float = 0.0):
         super().__init__()
         if rank <= 0: raise ValueError("rank must be positive")
